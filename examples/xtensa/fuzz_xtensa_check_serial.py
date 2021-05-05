@@ -146,11 +146,11 @@ if __name__ == '__main__':
         # reset previous block reached
         ctx = libAFL.init_ctx(ctx, monitor, bbm)
 
-        res, ctx = libAFL.rcv_config_and_input(ctx, debug=DEBUG)
+        res, ctx = libAFL.rcv_input(ctx, debug=DEBUG)
         if not res:
             if DEBUG:
                 print("Error get config")
-            ctx = libAFL.notify_end_exec(ctx)
+            res, ctx = libAFL.notify_err(ctx)
             continue
 
         if DEBUG:
@@ -165,7 +165,7 @@ if __name__ == '__main__':
             count = 0
             if not bFirstRun:
                 stat = 1000.0 / (time.time() - ref_time)
-                print("Exec %f/s" % stat)
+                print("Exec %d/s" % int(stat))
             bFirstRun = False
             ref_time = time.time()
         count += 1
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
             # single step emulation
             success = emuHelper.step(monitor)
-            if (success == False):
+            if success == False:
                 bCrash = True
                 lastError = emuHelper.getLastError()
                 print("Emulation Error: '{}'".format(lastError))
@@ -225,9 +225,9 @@ if __name__ == '__main__':
 
         # End of Emulation
         if bCrash:
-            ctx = libAFL.notify_crash(ctx)
+            res, ctx = libAFL.notify_crash(ctx)
         else:
-            ctx = libAFL.notify_end_exec(ctx)
+            res, ctx = libAFL.notify_end_exec(ctx)
 
 
     # End of prog

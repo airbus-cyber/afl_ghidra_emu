@@ -3,48 +3,36 @@
 
 afl_ghidra_emu allows to fuzz exotic architecture using AFL++ and Ghidra emulation with code coverage functionality.
 
-For more information, read this [article](https://airbus-cyber-security.com/fuzzing-exotic-arch-with-afl-using-ghidra-emulator/).
-
-<p align="center">
-<img src="https://airbus-cyber-security.com/wp-content/uploads/2021/04/Blog-graphic_Fuzzing-.png">
-</p>
-
 ## How it works?
 
-First, AFL++ listens on TCP socket (Ex: 22222/tcp) to get notified about sample’s code execution path.
+AFL++ runs a trampoline program (afl_bridge_external) which is in charge of forwarding samples to Ghidra emulation 
+via a TCP socket (Ex: 127.0.0.1:6674/tcp). 
 
-Then AFL++ runs a trampoline script (afl_bridge_external.py) which is in charge of forwarding samples and maintaining 
-the AFL++ configuration to Ghidra emulation via a TCP socket (Ex: 127.0.0.1:6674/tcp)  
-
-Finally, a python script in Ghidra (fuzz_xtensa_check_serial.py) is responsible of emulating code execution. It listens 
+A python script in Ghidra (fuzz_xtensa_check_serial.py) is responsible for emulating code execution. It listens 
 on a TCP socket (127.0.0.1:6674/tcp) and waits for input data coming from trampoline script.
-As soon as the script receives input data, the emulation will be started. During the execution, the executed path addresses are 
-sent to AFL++ using its socket (127.0.0.1:22222).
+As soon as the script receives input data, the emulation will be started. During the execution, the executed path addresses, 
+and the execution status are sent to afl_bridge_external using established TCP socket. 
 
-The emulation engine reports the final execution status (Ex: got crash or not) to the trampoline script (afl_bridge_external.py). 
-If state crash is reported, the trampoline script exits with segfault signal that AFL++ caches.
+afl_bridge_external reports the execution status and execution path to AFL++ using pipes and shared memory. 
 
 
 ## Installation
-Clone AFLplusplus-socket-mode directory.
+Install [AFL++](https://github.com/AFLplusplus/AFLplusplus)  
+
+Clone afl_ghidra_emu directory
 ```bash
-git clone https://github.com/airbus-cyber/AFLplusplus-socket-mode
+git clone https://github.com/airbus-cyber/afl_ghidra_emu.git
 ```
 
-Compile AFLplusplus (read AFLplusplus-socket-mode/README.md for more options)
-```bash
-cd AFLplusplus-socket-mode
+Compile afl_bridge_external
+```
+cd afl_ghidra_emu/afl_bridge_external
 make
-```
-
-Get AFL Ghidra emulator scripts and library
-```bash
-cd AFLplusplus-socket-mode/utils/socket_mode
-sh get_afl_ghidra_emulator.sh
 ```
 
 Copy afl_ghidra_emu files to your ghidra script directory
 ```bash
+cd ../..
 cp –r afl_ghidra_emu/* $USER_HOME/ghidra_scripts/
 ```
 
@@ -73,15 +61,17 @@ Add first sample
 echo -n "BBBBBBBB" > input/sample1.bin
 ```
 
-Start AFL++ with trampoline script.
+Start AFL++ with trampoline program.
 ```bash
-afl-fuzz -p explore -D -Y 22222 -i input -o output -t 90000 /usr/bin/python2 afl_bridge_external.py -H 127.0.0.1 -P 6674 -a 127.0.0.1 -p 22222 -i @@
+afl-fuzz -D -i input -o output afl_bridge_external 127.0.0.1 6674 20
 ```
 
 #### Stop Ghidra emulation
+Stop AFL++ using CTRL+C. If Ghidra emulation still running, we can send "STOP" command:
 ```bash
-./afl_bridge_external.py -H 127.0.0.1 -P 6674 -s
+echo -e "\xff" | nc 127.0.0.1 6674
 ```
+Do no use Ghidra Cancel button, because it does not properly close the socket.
 
 ## Example: Fuzzing PPC binary code keygenme_ppc.elf
 ./examples/ppc/bin/keygenme_ppc.elf is also a *keygenMe* compiled for PowerPC architecture.

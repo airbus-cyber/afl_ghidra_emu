@@ -18,15 +18,15 @@ limitations under the License.
 
 
 import struct
+import time
 
 from ghidra.app.emulator import EmulatorHelper
 from ghidra.program.model.address import GenericAddress
 from ghidra.util.task import ConsoleTaskMonitor
 from ghidra.program.model.block import BasicBlockModel
 
-import time
-
 from libAFL import libAFL
+
 
 # TCP listen PORT
 PORT = 6674
@@ -46,8 +46,6 @@ D_REG = {
     "r9": "r9",
     "r31": "r31",
 }
-
-
 
 
 
@@ -110,6 +108,7 @@ D_HOOKS = {
 
 
 if __name__ == '__main__':
+
     emuHelper = EmulatorHelper(currentProgram)
 
     monitor = ConsoleTaskMonitor()
@@ -138,15 +137,14 @@ if __name__ == '__main__':
     isRunning = True
     while isRunning:
 
-
         # reset previous block reached
         ctx = libAFL.init_ctx(ctx, monitor, bbm)
 
-        res, ctx = libAFL.rcv_config_and_input(ctx, debug=DEBUG)
+        res, ctx = libAFL.rcv_input(ctx, debug=DEBUG)
         if not res:
             if DEBUG:
                 print("Error get config")
-            ctx = libAFL.notify_end_exec(ctx)
+            res, ctx = libAFL.notify_err(ctx)
             continue
 
         if DEBUG:
@@ -161,7 +159,7 @@ if __name__ == '__main__':
             count = 0
             if not bFirstRun:
                 stat = 1000.0 / (time.time() - ref_time)
-                print("Exec %f/s" % stat)
+                print("Exec %d/s" % int(stat))
             bFirstRun = False
             ref_time = time.time()
         count += 1
@@ -212,7 +210,7 @@ if __name__ == '__main__':
 
             # single step emulation
             success = emuHelper.step(monitor)
-            if (success == False):
+            if success == False:
                 bCrash = True
                 lastError = emuHelper.getLastError()
                 print("Emulation Error: '{}'".format(lastError))
@@ -220,10 +218,13 @@ if __name__ == '__main__':
 
         # End of Emulation
         if bCrash:
-            ctx = libAFL.notify_crash(ctx)
+            res, ctx = libAFL.notify_crash(ctx)
         else:
-            ctx = libAFL.notify_end_exec(ctx)
+            res, ctx = libAFL.notify_end_exec(ctx)
 
+        if not res:
+            # Error on notify
+            break
 
     # End of prog
 
