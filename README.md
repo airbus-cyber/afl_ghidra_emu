@@ -3,6 +3,13 @@
 
 afl_ghidra_emu allows to fuzz exotic architecture using AFL++ and Ghidra emulation with code coverage functionality.
 
+For more information, read this [article](https://airbus-cyber-security.com/fuzzing-exotic-arch-with-afl-using-ghidra-emulator/).
+
+<p align="center">
+<img src="https://airbus-cyber-security.com/wp-content/uploads/2021/04/202104_Blog_Graphic_Fuzzing.png">
+</p>
+
+
 ## How it works?
 
 AFL++ runs a trampoline program (afl_bridge_external) which is in charge of forwarding samples to Ghidra emulation 
