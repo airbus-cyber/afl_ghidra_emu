@@ -19,6 +19,8 @@ limitations under the License.
 
 import struct
 import socket
+from libUtils import libUtils
+
 
 
 CONFIG  = "\x02"
@@ -32,9 +34,6 @@ ERR     = "\xfc"
 
 
 
-
-def addr2int(addr):
-    return addr.offset
 
 
 def run_bridge_server_api(ctx, host="127.0.0.1", port=6666):
@@ -283,10 +282,10 @@ def notify_code_coverage(ctx, executionAddress, debug=False):
     res = False
     b = ctx["bbm"].getFirstCodeBlockContaining(executionAddress, ctx["monitor"])
     if b is None:
-        print("notify_code_coverage: Warning cannot get block for addr 0x%08X" % addr2int(executionAddress))
+        print("notify_code_coverage: Warning cannot get block for addr 0x%08X" % libUtils.addr2int(executionAddress))
         return True, ctx
 
-    b_addr = addr2int(b.minAddress)
+    b_addr = libUtils.addr2int(b.minAddress)
 
 
     if b_addr == ctx["last_block_addr"]:

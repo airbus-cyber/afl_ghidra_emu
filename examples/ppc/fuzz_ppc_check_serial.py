@@ -26,6 +26,7 @@ from ghidra.util.task import ConsoleTaskMonitor
 from ghidra.program.model.block import BasicBlockModel
 
 from libAFL import libAFL
+from libUtils import libUtils
 
 
 # TCP listen PORT
@@ -79,7 +80,7 @@ def apply_hooks(emuHelper, addr, debug=False):
     # n_addr = get_next_execution_addr(addr)
 
     bRes = None
-    addr_int = libAFL.addr2int(addr)
+    addr_int = libUtils.addr2int(addr)
     if addr_int in D_HOOKS.keys():
         if debug:
             print(" * * * apply_hook: %s - %s" % (str(addr), D_HOOKS[addr_int]["name"]))
