@@ -8,7 +8,7 @@ afl_ghidra_emu allows to fuzz exotic architecture using AFL++ and Ghidra emulati
 For more information, read this [article](https://github.com/airbus-cyber/blogpost/tree/main/fuzzing-exotic-arch-with-afl-using-ghidra-emulator).
 
 <p align="center">
-<img src="https://airbus-cyber-security.com/wp-content/uploads/2021/04/202104_Blog_Graphic_Fuzzing.png">
+<img src="https://github.com/airbus-cyber/blogpost/blob/main/fuzzing-exotic-arch-with-afl-using-ghidra-emulator/image/202104_Blog_Graphic_Fuzzing-1536x536.png">
 </p>
 
 
