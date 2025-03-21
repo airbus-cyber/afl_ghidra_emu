@@ -1,9 +1,11 @@
 # afl_ghidra_emu
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+afl_ghidra_emu is no longer maintained and replaced by **[Ghidralligator](https://github.com/airbus-cyber/ghidralligator). Try it!**
+
 afl_ghidra_emu allows to fuzz exotic architecture using AFL++ and Ghidra emulation with code coverage functionality.
 
-For more information, read this [article](https://airbus-cyber-security.com/fuzzing-exotic-arch-with-afl-using-ghidra-emulator/).
+For more information, read this [article](https://github.com/airbus-cyber/blogpost/tree/main/fuzzing-exotic-arch-with-afl-using-ghidra-emulator).
 
 <p align="center">
 <img src="https://airbus-cyber-security.com/wp-content/uploads/2021/04/202104_Blog_Graphic_Fuzzing.png">
